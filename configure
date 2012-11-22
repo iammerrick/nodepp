@@ -1,0 +1,97 @@
+#!/usr/bin/env make _config_ -f
+# vim: ft=make
+
+# objects for the binary
+node++_SRC := main_node++.cpp jinx/node/*.cpp
+
+
+# prepare the directories
+SELF := $(lastword 1,$(MAKEFILE_LIST))
+ROOTDIR := $(patsubst %/,%,$(dir $(SELF)))
+SRCDIR := $(ROOTDIR)/src
+OBJDIR := .objs
+$(shell mkdir -p $(OBJDIR))
+
+# if there is no make file in the current directory then add one
+ifeq ($(wildcard Makefile),)
+    $(shell echo '#### creating local Makefile ####' 1>&2)
+    $(shell echo 'include $(SELF)' > Makefile)
+endif
+
+# build settings
+CXX := colorize-gcc ccache clang++
+HOMEBREW := $(shell brew --prefix)
+CPPFLAGS += -isystem$(HOMEBREW)/Cellar/boost-gcc45/1.48.0/include
+CPPFLAGS += -I$(SRCDIR)
+CXXFLAGS += -m64 -O3 -Wall -g -std=c++0x
+LDFLAGS += -m64 `libpng-config --libs`
+
+# this is appended to targets
+BRIEF = @echo '--== $(@:$(OBJDIR)/%=%) ==--';
+
+# define the binary dependencies
+ALL_BINS := $(patsubst %_SRC,%,$(filter %_SRC,$(.VARIABLES)))
+objs_for_bin = $(sort $(patsubst $(SRCDIR)/%,%,$(filter %.o, \
+	$(patsubst %.cpp,%.o,$(wildcard $(addprefix $(SRCDIR)/,$($(1)_SRC)))))))
+tmp := $(foreach bin,$(ALL_BINS), \
+	$(eval $(bin)_OBJS := $(call objs_for_bin,$(bin))) \
+	$(eval $(bin): $$(addprefix $(OBJDIR)/,$($(bin)_OBJS))))
+ALL_OBJS := $(sort $(foreach bin,$(ALL_BINS),$($(bin)_OBJS)))
+
+# load the dependencies
+-include $(ALL_OBJS:%=$(OBJDIR)/%.d)
+
+# all target
+all: $(ALL_BINS)
+
+# This is a fake target which is called during setup
+.PHONY: _config_
+_config_:
+	@echo '#### configured ####'
+	@echo 'include $(SELF)' > Makefile
+
+# implicit rules
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(BRIEF)$(CXX) -MMD -MP -MF $@.d -c $< -o $@ $(CXXFLAGS) $(CPPFLAGS)
+
+$(OBJDIR)/%.d: $(SRCDIR)/%
+
+$(ALL_BINS): %:
+	$(BRIEF)$(CXX) $(LDFLAGS) -o $@ $+
+
+clean:
+	rm -rf $(OBJDIR)
+	rm -f $(ALL_BINS)
+
+
+# special commands
+%\:run: %
+	@echo "running $* $(CLARGS)"
+	@./$* $(CLARGS)
+	@echo
+
+# execute the binary using gdb
+GDBTMP := $(OBJDIR)/.gdb.tmp
+.PHONY: %:gdb
+%\:gdb: %
+	@echo debugging $* $(CLARGS)
+	@echo $(GDBCMDS)    > $(GDBTMP)
+	@echo run $(CLARGS) >> $(GDBTMP)
+	gdb -x $(GDBTMP) $(GDBARGS) ./$*
+	@rm $(GDBTMP)
+
+
+WATCH_FILE := $(OBJDIR)/.watch
+WATCH_FIND := $(SRCDIR) -type f \! -iname '.*' -newer $(WATCH_FILE) -print -quit
+
+%\:watch:
+	@touch -t00000000 $(WATCH_FILE); \
+	while [ true ]; do \
+		if [ "$$(find $(WATCH_FIND))" != "" ]; then \
+			touch $(WATCH_FILE); \
+			$(MAKE) $*; \
+		fi; \
+		sleep 1; \
+	done
+
