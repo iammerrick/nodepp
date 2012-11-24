@@ -2,7 +2,7 @@
 # vim: ft=make
 
 # objects for the binary
-node++_SRC := main_node++.cpp jinx/node.cpp
+node++_SRC := main_node++.cpp jinx/node/*.cpp
 
 
 # prepare the directories
@@ -23,7 +23,7 @@ CXX := colorize-gcc ccache clang++
 HOMEBREW := $(shell brew --prefix)
 CPPFLAGS += -isystem$(HOMEBREW)/Cellar/boost-gcc45/1.48.0/include
 CPPFLAGS += -I$(SRCDIR)
-CXXFLAGS += -m64 -O3 -Wall -g -std=c++0x
+CXXFLAGS += -m64 -Wall -g -std=c++0x
 LDFLAGS += -m64 `libpng-config --libs`
 
 # this is appended to targets
