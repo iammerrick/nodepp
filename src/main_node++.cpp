@@ -14,7 +14,7 @@ int main() {
   FileSystem fs(core);
 
   core.start([=]() mutable {
-    fs.open("../src/main_node++.cpp","r",[=](string err,int fd) mutable {
+    fs.open("../src/main_node++.cpp","r",[=](string err,Fd fd) mutable {
       cout << "Hi!" << endl;
       Buffer buf(20);
       fs.read(fd,buf,0,20,0,[=](string,size_t rdcnt,Buffer buf) {

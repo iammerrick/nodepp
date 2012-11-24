@@ -30,7 +30,7 @@ namespace node {
   private:
     const shared_ptr<Inner> m_inner;
 
-  protected:
+  public:
     Inner& self;
   };
 

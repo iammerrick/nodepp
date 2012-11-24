@@ -6,6 +6,33 @@ namespace jinx {
 namespace node {
 
   template <>
+  struct Pimpl<Fd>::Inner {
+    int fd;
+
+    Inner( int fd ) : fd(fd) {}
+    ~Inner() {
+      if ( fd != -1 )
+        ::close(fd);
+    }
+  };
+
+  Fd::Fd( int fd )
+  : Pimpl<Fd>(fd)
+  {}
+
+  bool Fd::isOpen() const { return self.fd != -1; }
+
+  int Fd::fd() const { return self.fd; }
+
+  void Fd::close() {
+    if ( self.fd != -1 ) {
+      ::close(self.fd);
+      self.fd = -1;
+    }
+  }
+
+
+  template <>
   struct Pimpl<FileSystem>::Inner {
     Inner( Core c ) : core(c) {}
     Core core;
@@ -15,14 +42,16 @@ namespace node {
   : Pimpl<FileSystem>(c) {}
 
   void FileSystem::open( string path, string mode,
-    function<void(string,int)> cb )
+    function<void(string,Fd)> cb )
   {
     self.core.defer([=]() {
       FILE* fh = ::fopen(path.c_str(),mode.c_str());
       if ( !fh ) {
-        cb(::strerror(errno),-1);
+        cb(::strerror(errno),Fd(-1));
       } else {
-        cb("",::fileno(fh));
+        Fd fd(::dup(::fileno(fh)));
+        ::fclose(fh);
+        cb("",fd);
       }
     });
   }
@@ -30,7 +59,7 @@ namespace node {
   namespace {
     struct Reader : Poller {
 
-      Reader( int fd, Buffer buffer, size_t offset, size_t size,
+      Reader( Fd fd, Buffer buffer, size_t offset, size_t size,
         function<void(string,size_t,Buffer)> callback
       )
       : m_callback(callback)
@@ -44,7 +73,7 @@ namespace node {
 
         // read from the file descriptor
         auto outptr = &m_buffer[m_offset];
-        auto rdcnt = ::read(m_fd,outptr,m_size-m_offset);
+        auto rdcnt = ::read(m_fd.self.fd,outptr,m_size-m_offset);
 
         // handle errors
         if ( rdcnt == -1 ) {
@@ -64,7 +93,7 @@ namespace node {
     
     private:
       const function<void(string,size_t,Buffer)> m_callback;
-      const int m_fd;
+      const Fd m_fd;
       const size_t m_size;
       Buffer m_buffer;
       size_t m_offset;
@@ -72,10 +101,10 @@ namespace node {
     };
   }
 
-  void FileSystem::read( int fd, Buffer buffer, size_t offset, size_t length,
+  void FileSystem::read( Fd fd, Buffer buffer, size_t offset, size_t length,
     size_t position, function<void(string,size_t,Buffer)> cb )
   {
-    const pollfd pfd = { fd, POLLIN, 0 };
+    const pollfd pfd = { fd.self.fd, POLLIN, 0 };
     shared_ptr<Reader> reader( new Reader(fd,buffer,offset,length,cb) );
     self.core.poll(pfd,reader);
   }

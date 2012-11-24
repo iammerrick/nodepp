@@ -18,13 +18,24 @@ namespace node {
   };
 
 
+  //! Container for a file descriptor.  Once the last of this class is lost,
+  //! the descriptor is closed.
+  struct Fd : Pimpl<Fd> {
+    Fd( int fd );
+
+    bool isOpen() const;
+    int fd() const;
+    void close();
+  };
+
+
   //! This class contains all of the functions that deal with filesystem access,
   //! including file IO.  The interface is analogous to the Node.js File System
   //! interface.
   struct FileSystem : Pimpl<FileSystem> {
     FileSystem( Core );
-    void open( string path, string mode, function<void(string,int)> );
-    void read( int fd, Buffer buffer, size_t offset, size_t length,
+    void open( string path, string mode, function<void(string,Fd)> );
+    void read( Fd fd, Buffer buffer, size_t offset, size_t length,
       size_t position, function<void(string,size_t,Buffer)> );
   };
 
