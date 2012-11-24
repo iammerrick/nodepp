@@ -23,9 +23,9 @@ namespace node {
   //! interface.
   struct FileSystem : Pimpl<FileSystem> {
     FileSystem( Core );
-    void open( string path, string mode, function<void(string,int)> ) const;
+    void open( string path, string mode, function<void(string,int)> );
     void read( int fd, Buffer buffer, size_t offset, size_t length,
-      size_t position, function<void(string,size_t,Buffer)> ) const;
+      size_t position, function<void(string,size_t,Buffer)> );
   };
 
 }}

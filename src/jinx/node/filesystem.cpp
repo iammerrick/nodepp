@@ -8,14 +8,14 @@ namespace node {
   template <>
   struct Pimpl<FileSystem>::Inner {
     Inner( Core c ) : core(c) {}
-    mutable Core core;
+    Core core;
   };
 
   FileSystem::FileSystem( Core c )
   : Pimpl<FileSystem>(c) {}
 
   void FileSystem::open( string path, string mode,
-    function<void(string,int)> cb ) const
+    function<void(string,int)> cb )
   {
     self.core.defer([=]() {
       FILE* fh = ::fopen(path.c_str(),mode.c_str());
@@ -73,7 +73,7 @@ namespace node {
   }
 
   void FileSystem::read( int fd, Buffer buffer, size_t offset, size_t length,
-    size_t position, function<void(string,size_t,Buffer)> cb ) const
+    size_t position, function<void(string,size_t,Buffer)> cb )
   {
     const pollfd pfd = { fd, POLLIN, 0 };
     shared_ptr<Reader> reader( new Reader(fd,buffer,offset,length,cb) );
