@@ -13,19 +13,25 @@ namespace node {
   template <typename Self>
   struct Pimpl {
   protected:
-    Pimpl() { m_inner.reset(new Inner); }
-
-    template <typename... Args>
-    Pimpl( Args&&... args ) {
-      m_inner.reset( new Inner( args... ) );
-    }
 
     struct Inner;
-    Inner& self() { return *m_inner; }
-    const Inner& self() const { return *m_inner; }
+
+    Pimpl()
+    : m_inner( new Inner )
+    , self(*m_inner)
+    {}
+
+    template <typename... Args>
+    Pimpl( Args&&... args )
+    : m_inner( new Inner(args...) )
+    , self(*m_inner)
+    {}
 
   private:
-    shared_ptr<Inner> m_inner;
+    const shared_ptr<Inner> m_inner;
+
+  protected:
+    Inner& self;
   };
 
 }}

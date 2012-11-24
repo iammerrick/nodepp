@@ -7,7 +7,7 @@ namespace node {
 
   template <>
   struct Pimpl<FileSystem>::Inner {
-    Inner( Core c ) { core = c; }
+    Inner( Core c ) : core(c) {}
     mutable Core core;
   };
 
@@ -17,7 +17,7 @@ namespace node {
   void FileSystem::open( string path, string mode,
     function<void(string,int)> cb ) const
   {
-    self().core.defer([=]() {
+    self.core.defer([=]() {
       FILE* fh = ::fopen(path.c_str(),mode.c_str());
       if ( !fh ) {
         cb(::strerror(errno),-1);
@@ -77,7 +77,7 @@ namespace node {
   {
     const pollfd pfd = { fd, POLLIN, 0 };
     shared_ptr<Reader> reader( new Reader(fd,buffer,offset,length,cb) );
-    self().core.poll(pfd,reader);
+    self.core.poll(pfd,reader);
   }
 
 }}

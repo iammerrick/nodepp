@@ -64,31 +64,31 @@ namespace node {
   }
 
   void Core::next() {
-    auto& polls = self().polls;
-    auto& defers = self().defers;
+    auto& polls = self.polls;
+    auto& defers = self.defers;
 
-    while ( self().hasMoreEvents() ) {
+    while ( self.hasMoreEvents() ) {
 
       // check for any deferred functions
       // TODO this could cause starvation if each time a defer function is
       //   called, it defers again.  We should add something that limits the
       //   number of times we defer before dropping into other events.
       while ( !defers.empty() ) {
-        self().callNextDeferred();
+        self.callNextDeferred();
       }
 
       // perform a poll
       if ( !polls.empty() )
-        self().pollForEvents();
+        self.pollForEvents();
     }
   }
 
   void Core::defer( function<void()> f ) {
-    self().defers.push_back(f);
+    self.defers.push_back(f);
   }
 
   void Core::poll( const pollfd& pfd, const shared_ptr<Poller>& cb ) {
-    self().polls.push_back( make_pair(pfd,cb) );
+    self.polls.push_back( make_pair(pfd,cb) );
   }
 
 }}
