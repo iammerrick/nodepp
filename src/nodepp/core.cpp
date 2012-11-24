@@ -2,8 +2,7 @@
 using namespace std;
 
 
-namespace jinx {
-namespace node {
+namespace nodepp {
 
   template <>
   struct Pimpl<Core>::Inner {
@@ -91,4 +90,4 @@ namespace node {
     self.polls.push_back( make_pair(pfd,cb) );
   }
 
-}}
+}

@@ -1,12 +1,6 @@
-#include <iostream>
-#include <vector>
-#include <cstdio>
-#include <errno.h>
-#include <poll.h>
-#include <boost/shared_ptr.hpp>
-#include "jinx/node/filesystem.hpp"
+#include "nodepp/filesystem.hpp"
 
-using namespace jinx::node;
+using namespace nodepp;
 
 
 int main() {

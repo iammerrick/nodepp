@@ -4,8 +4,7 @@
 #include "pimpl.hpp"
 #include "core.hpp"
 
-namespace jinx {
-namespace node {
+namespace nodepp {
 
   //! This is a boring old data buffer.
   struct Buffer {
@@ -39,6 +38,6 @@ namespace node {
       size_t position, function<void(string,size_t,Buffer)> );
   };
 
-}}
+}
 
 #endif

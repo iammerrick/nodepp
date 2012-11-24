@@ -6,15 +6,15 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <iostream>
 #include <map>
 #include <set>
 
 
-namespace jinx {
-namespace node {
+namespace nodepp {
   using boost::shared_ptr;
   using boost::function;
   using namespace std;
-}}
+}
 
 #endif

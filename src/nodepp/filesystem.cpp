@@ -2,8 +2,7 @@
 #include <errno.h>
 
 
-namespace jinx {
-namespace node {
+namespace nodepp {
 
   template <>
   struct Pimpl<Fd>::Inner {
@@ -109,4 +108,5 @@ namespace node {
     self.core.poll(pfd,reader);
   }
 
-}}
+}
+

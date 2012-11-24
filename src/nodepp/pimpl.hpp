@@ -5,8 +5,7 @@
 #include <utility>
 
 
-namespace jinx {
-namespace node {
+namespace nodepp {
 
   //! This class sets a class up as a pimpl. In order to define the internal
   //! contents, you must define Pimpl<T>::Inner with template specialization.
@@ -34,6 +33,6 @@ namespace node {
     Inner& self;
   };
 
-}}
+}
 
 #endif

@@ -5,8 +5,7 @@
 #include <sys/poll.h>
 
 
-namespace jinx {
-namespace node {
+namespace nodepp {
 
   //! This class is used to poll a file descriptor, and collect the results.
   //! Each time the polling returns, the collect method is called.  Polling
@@ -40,6 +39,6 @@ namespace node {
     void poll( const pollfd&, const shared_ptr<Poller>& );
   };
 
-}}
+}
 
 #endif
