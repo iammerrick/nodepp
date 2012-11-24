@@ -21,8 +21,6 @@ endif
 # build settings
 CXX := colorize-gcc ccache clang++
 HOMEBREW := $(shell brew --prefix)
-CPPFLAGS += -isystem$(HOMEBREW)/Cellar/boost-gcc45/1.48.0/include
-CPPFLAGS += -I$(SRCDIR)
 CXXFLAGS += -m64 -Wall -g -std=c++0x
 LDFLAGS += -m64 `libpng-config --libs`
 
