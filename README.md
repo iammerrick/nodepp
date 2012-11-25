@@ -1,6 +1,5 @@
-
 This project is meant to be a library which permits C++ coders to take advantage
-of the asynchronous event-loop lambda-based IO approach made populate by
+of the asynchronous event-loop lambda-based IO approach made popular by
 Node.js.  At the moment, this is simply a toy project that I am playing with. I
 am happy to accept any assistance or hear of any interest.
 
